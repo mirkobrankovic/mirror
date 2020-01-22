@@ -2,7 +2,6 @@ var express = require('express');
 var fs = require('fs');
 var app = express();
 global.ifolder = "";
-global.iPerson= "all";
 global.afolder = "";
 
 var bodyParser = require('body-parser')
@@ -23,9 +22,7 @@ app.use(function(req, res, next) {
 });
 
 app.post('/image', function(req, res){
-  if(req.query.username) {
-    global.iPerson = req.query.username;
-  }
+  var iPerson = req.query.username ? req.query.username : 'all';
   var base64Data = req.body.image.toString().replace(/^data:image\/jpeg;base64,/, "");
   var image = new Buffer(base64Data, 'base64');
   var result = "";
@@ -41,13 +38,12 @@ app.post('/image', function(req, res){
     });
 
     const exec = require('child_process').exec;
-    var command = 'face_recognition known/'+ global.iPerson +' '+ folder +'/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
+    var command = 'face_recognition known/'+ iPerson +' '+ folder +'/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
     exec(command, (error, stdout, stderr) => {
       if (error) throw err;
       const output = stdout.split(',');
       console.log(`face_recognition stdout: ${stdout}`);
-      //procenat = Math.round((1-output[1]) * 100);
-      procenat = Math.abs(90 + (output[1]*10)).toFixed(2);
+      procenat = Math.abs(90 + ((1-output[1])*10)).toFixed(2);
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end(result.concat(output[0],"(",procenat,"%)"));
 
