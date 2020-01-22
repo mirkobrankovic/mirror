@@ -1,8 +1,6 @@
 var express = require('express');
 var fs = require('fs');
 var app = express();
-global.ifolder = "";
-global.afolder = "";
 
 var bodyParser = require('body-parser')
 app.use(express.json({limit: '50mb'}));
@@ -29,9 +27,8 @@ app.post('/image', function(req, res){
 
   fs.mkdtemp('image-', (err, folder) => {
     if (err) throw err;
-    global.ifolder = folder;
 
-    fs.writeFile(global.ifolder+"/new.jpg", image, 'base64', function(err) {
+    fs.writeFile(folder+"/new.jpg", image, 'base64', function(err) {
       if (err) {
         console.log(err);
       }
@@ -47,7 +44,7 @@ app.post('/image', function(req, res){
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end(result.concat(output[0],"(",procenat,"%)"));
 
-      deleteFolderRecursive(global.ifolder);
+      deleteFolderRecursive(folder);
     });
   });
 });
@@ -58,9 +55,8 @@ app.post('/audio', function(req, res){
 
   fs.mkdtemp('audio-', (err, folder) => {
     if (err) throw err;
-    global.afolder = folder;
 
-    require("fs").writeFile(global.afolder + "/new.webm", audio, 'base64', function(err) {
+    require("fs").writeFile(folder + "/new.webm", audio, 'base64', function(err) {
       if (err) {
         console.log(err);
       }
@@ -68,7 +64,7 @@ app.post('/audio', function(req, res){
     const exec = require('child_process').exec;
     const exec1 = require('child_process').exec;
 
-    exec('ffmpeg -i '+ global.afolder +'/new.webm -y -acodec pcm_s16le -ac 1 -ar 16000 -af lowpass=3000,highpass=200 -vn '+ global.afolder +'/new.wav', (error, stdout, stderr) => {
+    exec('ffmpeg -i '+ folder +'/new.webm -y -acodec pcm_s16le -ac 1 -ar 16000 -af lowpass=3000,highpass=200 -vn '+ folder +'/new.wav', (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
         return;
@@ -76,7 +72,7 @@ app.post('/audio', function(req, res){
       //console.log(`stderr: ${stderr}`);
     });
   
-    exec1('deepspeech --model deepspeech-0.6.0-models/output_graph.pbmm --lm deepspeech-0.6.0-models/lm.binary --trie deepspeech-0.6.0-models/trie --audio '+ global.afolder +'/new.wav', (error, stdout, stderr) => {
+    exec1('deepspeech --model deepspeech-0.6.0-models/output_graph.pbmm --lm deepspeech-0.6.0-models/lm.binary --trie deepspeech-0.6.0-models/trie --audio '+ folder +'/new.wav', (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
         return;
@@ -85,7 +81,7 @@ app.post('/audio', function(req, res){
 
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end(stdout);
-      deleteFolderRecursive(global.afolder);
+      deleteFolderRecursive(folder);
     });
   });
 });
