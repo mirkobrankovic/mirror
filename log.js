@@ -1,7 +1,15 @@
-var winston = require('winston')
-
+var winston = require('winston');
+const moment = require('moment');
+const { createLogger, format, transports } = require('winston');
+const { combine, timestamp, label, printf } = format;
 // set default log level.
 var logLevel = 'info'
+
+const newFormat = printf(({ level, message, label, timestamp }) => {
+    return `${timestamp} [${label}] ${level}: ${message}`;
+});
+
+const tsFormat = () => moment().format('YYYY-MM-DD hh:mm:ss').trim();
 
 var logger = winston.createLogger({
     level: logLevel,
@@ -15,27 +23,27 @@ var logger = winston.createLogger({
     },
     transports: [
         new (winston.transports.Console)({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
+            format: format.combine(
+                label({ label: 'uploader' }),
+                timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss'
+                }),
+                newFormat
             )
         }),
-        new (winston.transports.File)({ filename: 'uploader.log' })
+        new (winston.transports.File)({ 
+            filename: 'uploader.log',
+            format: format.combine(
+                label({ label: 'uploader' }),
+                timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss'
+                }),
+                newFormat
+            )
+        })
     ]
 })
 
-// Extend logger object to properly log 'Error' types
-var origLog = logger.log
-
-logger.log = function (level, msg) {
-    if (msg instanceof Error) {
-        var args = Array.prototype.slice.call(arguments)
-        args[1] = msg.stack
-        origLog.apply(logger, args)
-    } else {
-        origLog.apply(logger, arguments)
-    }
-}
 /* LOGGER EXAMPLES
   var log = require('./log.js')
   log.trace('testing')
