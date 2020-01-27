@@ -100,6 +100,6 @@ function deleteFolderRecursive(path) {
   }
 };
 
-port = 3000;
+port = process.env.NODE_PORT || 3000;
 app.listen(port);
 console.log('Listening at http://localhost:' + port)
