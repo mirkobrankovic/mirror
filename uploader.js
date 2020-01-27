@@ -30,16 +30,16 @@ app.post('/image', function (req, res) {
   var result = "";
 
   fs.mkdtemp(path.join(workDir,'image-'), (err, folder) => {
-    if (err) log.crit(err);
+    if (err) log.crit(`image folder error: ${err}`);
 
     fs.writeFile(folder + "/new.jpg", image, 'base64', function (err) {
-      if (err) log.crit(err);
+      if (err) log.crit(`image file write error: ${err}`);
     });
 
     const exec = require('child_process').exec;
     var command = '/home/infobip/.local/bin/face_recognition ' + workDir + 'known/' + iPerson + ' ' + folder + '/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
     exec(command, (error, stdout, stderr) => {
-      if (error) log.crit(error);
+      if (error) log.crit(`face_recognition error: ${error}`);
       const output = stdout.split(',');
       log.info(stdout);
       procenat = Math.abs(90 + ((1 - output[1]) * 10)).toFixed(2);
@@ -56,25 +56,26 @@ app.post('/audio', function (req, res) {
   var audio = req.body;
 
   fs.mkdtemp(path.join(workDir,'audio-'), (err, folder) => {
-    if (err) log.crit(err);
+    if (err) log.crit(`audio dir create error: ${err}`);
 
-    require("fs").writeFile(folder + "/new.webm", audio, 'base64', function (err) {
-      if (err) log.crit(err);
+    fs.writeFile(folder + "/new.webm", audio, 'base64', function (err) {
+      if (err) log.crit(`audio file write error: ${err}`);
     });
     const exec = require('child_process').exec;
     const exec1 = require('child_process').exec;
 
-    exec('ffmpeg -i ' + folder + '/new.webm -y -acodec pcm_s16le -ac 1 -ar 16000 -af lowpass=3000,highpass=200 -vn ' + folder + '/new.wav', (error, stdout, stderr) => {
+    var command = 'ffmpeg -i ' + folder + '/new.webm -y -acodec pcm_s16le -ac 1 -ar 16000 -af lowpass=3000,highpass=200 -vn ' + folder + '/new.wav';
+    exec(command, (error, stdout, stderr) => {
       if (error) {
-        log.crit(`exec error: ${error}`);
+        log.crit(`ffmpeg exec error: ${error}`);
         return;
       }
-      log.crit(err);
     });
 
-    exec1('deepspeech --model deepspeech-0.6.0-models/output_graph.pbmm --lm deepspeech-0.6.0-models/lm.binary --trie deepspeech-0.6.0-models/trie --audio ' + folder + '/new.wav', (error, stdout, stderr) => {
+    var command = 'deepspeech --model ' + workDir + 'deepspeech-0.6.0-models/output_graph.pbmm --lm ' + workDir + 'deepspeech-0.6.0-models/lm.binary --trie ' + workDir + 'deepspeech-0.6.0-models/trie --audio ' + folder + '/new.wav';
+    exec1(command, (error, stdout, stderr) => {
       if (error) {
-        log.crit(`exec error: ${error}`);
+        log.crit(`deepspeech exec error: ${error}`);
         return;
       }
       log.info(stdout);
