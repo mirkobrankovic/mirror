@@ -1,9 +1,12 @@
 var express = require('express');
 var fs = require('fs');
 var app = express();
-var log = require('./log.js')
+var log = require('./log.js');
+var bodyParser = require('body-parser');
+var path = require('path');
 
-var bodyParser = require('body-parser')
+workDir = process.env.WORK_DIR || "/var/www/html/mirror/";
+
 app.use(express.json({ limit: '50mb' }));
 app.use(bodyParser.raw({ type: 'audio/webm', limit: '50mb' }));
 app.use(bodyParser.json()); // for parsing application/json
@@ -26,19 +29,17 @@ app.post('/image', function (req, res) {
   var image = new Buffer(base64Data, 'base64');
   var result = "";
 
-  fs.mkdtemp('image-', (err, folder) => {
-    if (err) throw err;
+  fs.mkdtemp(path.join(workDir,'image-'), (err, folder) => {
+    if (err) log.crit(err);
 
     fs.writeFile(folder + "/new.jpg", image, 'base64', function (err) {
-      if (err) {
-        log.crit(err);
-      }
+      if (err) log.crit(err);
     });
 
     const exec = require('child_process').exec;
-    var command = '/home/infobip/.local/bin/face_recognition known/' + iPerson + ' ' + folder + '/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
+    var command = '/home/infobip/.local/bin/face_recognition ' + workDir + 'known/' + iPerson + ' ' + folder + '/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
     exec(command, (error, stdout, stderr) => {
-      if (error) throw err;
+      if (error) log.crit(error);
       const output = stdout.split(',');
       log.info(stdout);
       procenat = Math.abs(90 + ((1 - output[1]) * 10)).toFixed(2);
@@ -54,13 +55,11 @@ app.post('/audio', function (req, res) {
   app.use(bodyParser.raw({ type: 'audio/wav' }));
   var audio = req.body;
 
-  fs.mkdtemp('audio-', (err, folder) => {
-    if (err) throw err;
+  fs.mkdtemp(path.join(workDir,'audio-'), (err, folder) => {
+    if (err) log.crit(err);
 
     require("fs").writeFile(folder + "/new.webm", audio, 'base64', function (err) {
-      if (err) {
-        log.crit(err);
-      }
+      if (err) log.crit(err);
     });
     const exec = require('child_process').exec;
     const exec1 = require('child_process').exec;

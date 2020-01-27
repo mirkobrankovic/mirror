@@ -1,0 +1,15 @@
+[Unit]
+Description=Post processor of images and audio files
+#Documentation=mirror.infobip.tech
+After=network.target
+
+[Service]
+Environment=NODE_PORT=3000
+Environment="WORK_DIR=/var/www/html/mirror/"
+Type=simple
+Group=infobip
+ExecStart=/usr/bin/node /var/www/html/mirror/uploader.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

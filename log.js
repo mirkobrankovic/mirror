@@ -5,6 +5,8 @@ const { combine, timestamp, label, printf } = format;
 // set default log level.
 var logLevel = 'info'
 
+workDir = process.env.WORK_DIR || "/var/www/html/mirror/";
+
 const newFormat = printf(({ level, message, label, timestamp }) => {
     return `${timestamp} [${label}] ${level}: ${message}`;
 });
@@ -32,7 +34,7 @@ var logger = winston.createLogger({
             )
         }),
         new (winston.transports.File)({ 
-            filename: 'uploader.log',
+            filename: `${workDir}/uploader.log`,
             format: format.combine(
                 label({ label: 'uploader' }),
                 timestamp({
