@@ -1,6 +1,7 @@
 var express = require('express');
 var fs = require('fs');
 var app = express();
+var log = require('./log.js')
 
 var bodyParser = require('body-parser')
 app.use(express.json({ limit: '50mb' }));
@@ -30,6 +31,7 @@ app.post('/image', function (req, res) {
 
     fs.writeFile(folder + "/new.jpg", image, 'base64', function (err) {
       if (err) {
+        log.crit(err);
         console.log(err);
       }
     });
@@ -39,6 +41,7 @@ app.post('/image', function (req, res) {
     exec(command, (error, stdout, stderr) => {
       if (error) throw err;
       const output = stdout.split(',');
+      log.info(`face_recognition stdout: ${stdout}`);
       console.log(`face_recognition stdout: ${stdout}`);
       procenat = Math.abs(90 + ((1 - output[1]) * 10)).toFixed(2);
       res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -59,6 +62,7 @@ app.post('/audio', function (req, res) {
     require("fs").writeFile(folder + "/new.webm", audio, 'base64', function (err) {
       if (err) {
         console.log(err);
+        log.crit(err);
       }
     });
     const exec = require('child_process').exec;
@@ -66,18 +70,22 @@ app.post('/audio', function (req, res) {
 
     exec('ffmpeg -i ' + folder + '/new.webm -y -acodec pcm_s16le -ac 1 -ar 16000 -af lowpass=3000,highpass=200 -vn ' + folder + '/new.wav', (error, stdout, stderr) => {
       if (error) {
+        log.crit(`exec error: ${error}`);
         console.error(`exec error: ${error}`);
         return;
       }
+      log.crit(err);
       //console.log(`stderr: ${stderr}`);
     });
 
     exec1('deepspeech --model deepspeech-0.6.0-models/output_graph.pbmm --lm deepspeech-0.6.0-models/lm.binary --trie deepspeech-0.6.0-models/trie --audio ' + folder + '/new.wav', (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
+        log.crit(`exec error: ${error}`);
         return;
       }
       console.log(`Deepspeach stdout: ${stdout}`);
+      log.info(`Deepspeach stdout: ${stdout}`);
 
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(stdout);
@@ -102,4 +110,5 @@ function deleteFolderRecursive(path) {
 
 port = process.env.NODE_PORT || 3000;
 app.listen(port);
+log.info("Listening at http://localhost:" + port);
 console.log('Listening at http://localhost:' + port)
