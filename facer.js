@@ -129,7 +129,7 @@ setTimeout(initialize, 1);
 
 var sendImageToServer = function(base64){
     var httpPost = new XMLHttpRequest(),
-        path = "https://mirror.infobip.tech/image",
+        path = "http://localhost/image",
         data = JSON.stringify({image: base64});
     httpPost.onreadystatechange = function(err) {
             if (httpPost.readyState == 4 && httpPost.status == 200){
@@ -150,7 +150,7 @@ var sendImageToServer = function(base64){
 var sendAudioToServer = function(blob){
     var audiolabel = document.getElementById('audiolabel')
     var httpPost = new XMLHttpRequest(),
-      path = "https://mirror.infobip.tech/audio",
+      path = "http://localhost/audio",
       data = blob;
     httpPost.onreadystatechange = function(err) {
             if (httpPost.readyState == 4 && httpPost.status == 200) {

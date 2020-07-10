@@ -5,22 +5,47 @@ var log = require('./log.js');
 var bodyParser = require('body-parser');
 var path = require('path');
 
-workDir = process.env.WORK_DIR || "/var/www/html/mirror/";
+workDir = process.env.WORK_DIR || "/opt/mirror/";
 
 app.use(express.json({ limit: '50mb' }));
 app.use(bodyParser.raw({ type: 'audio/webm', limit: '50mb' }));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
   if ('OPTIONS' === req.method) {
     res.sendStatus(200);
   }
   else {
     next();
   }
+});
+
+app.post('/emo', function (req, res) {
+  var iPerson = req.query.username ? req.query.username : 'all';
+  var base64Data = req.body.image.toString().replace(/^data:image\/jpeg;base64,/, "");
+  var image = new Buffer(base64Data, 'base64');
+  var result = "";
+
+  fs.mkdtemp(path.join(workDir,'image-'), (err, folder) => {
+    if (err) log.crit(`image folder error: ${err}`);
+
+    fs.writeFile(folder + "/new.jpg", image, 'base64', function (err) {
+      if (err) log.crit(`image file write error: ${err}`);
+    });
+
+    const exec = require('child_process').exec;
+    var command = 'face_recognition ' + workDir + 'known/' + iPerson + ' ' + folder + '/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
+    exec(command, (error, stdout, stderr) => {
+      if (error) log.crit(`face_recognition error: ${error}`);
+      const output = stdout.split(',');
+      log.info(stdout);
+      procenat = Math.abs(90 + ((1 - output[1]) * 10)).toFixed(2);
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(result.concat(output[0], "(", procenat, "%)"));
+
+      deleteFolderRecursive(folder);
+    });
+  });
 });
 
 app.post('/image', function (req, res) {
@@ -37,7 +62,7 @@ app.post('/image', function (req, res) {
     });
 
     const exec = require('child_process').exec;
-    var command = '/home/infobip/.local/bin/face_recognition ' + workDir + 'known/' + iPerson + ' ' + folder + '/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
+    var command = 'face_recognition ' + workDir + 'known/' + iPerson + ' ' + folder + '/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
     exec(command, (error, stdout, stderr) => {
       if (error) log.crit(`face_recognition error: ${error}`);
       const output = stdout.split(',');
@@ -103,4 +128,4 @@ function deleteFolderRecursive(path) {
 
 port = process.env.NODE_PORT || 3000;
 app.listen(port);
-log.info("Listening at http://localhost:" + port);
+log.info("Mirror listening at http://localhost:" + port);

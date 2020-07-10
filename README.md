@@ -1,5 +1,5 @@
-apt install -y build-essentials python3-dev python3-pip nodejs npm
+apt install -y build-essentials python3-dev python3-pip nodejs npm ffmpeg
 
-pip3 install wheel
+pip3 install wheel face_recognition deepspeech
 
-pip3 install face_recognition
+npm install express moment winston

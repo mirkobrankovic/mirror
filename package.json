@@ -1,0 +1,21 @@
+{
+  "name": "mirror",
+  "version": "1.0.0",
+  "description": "Image and audio face, emotion, gender detection",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alsenet-labs/mrz-scanner.git"
+  },
+  "author": "ja",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "express": "4.17.1",
+    "moment": "2.24.0",
+    "winston": "3.2.0"
+  },
+  "dependencies": {
+    "express": "4.17.1",
+    "moment": "2.24.0",
+    "winston": "3.2.0"
+  }
+}

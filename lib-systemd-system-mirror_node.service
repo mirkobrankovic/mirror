@@ -6,7 +6,6 @@ After=network.target
 Environment=NODE_PORT=3000
 Environment="WORK_DIR=/usr/share/nginx/html/mirror/"
 Type=simple
-Group=infobip
 ExecStart=/usr/bin/node /usr/share/nginx/html/mirror/uploader.js
 Restart=on-failure
 
