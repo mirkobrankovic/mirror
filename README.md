@@ -1,4 +1,4 @@
-apt install -y build-essentials python3-dev python3-pip
+apt install -y build-essentials python3-dev python3-pip nodejs
 
 pip3 install wheel
 
