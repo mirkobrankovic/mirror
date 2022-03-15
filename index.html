@@ -10,9 +10,7 @@
 <head>
   <script type="text/javascript" src="./lib/ccv.js"></script>
   <script type="text/javascript" src="./lib/face.js"></script>
-  <!-- Load the polyfill to switch-hit between Chrome and Firefox -->
-  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-  <script src="./common.js"></script>
+  <script type="text/javascript" src="./lib/facer.js"></script>
   <style type="text/css">
     display: block;display: block;* { margin:0; padding:0; } /* to remove the top and left whitespace */
     html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
@@ -23,6 +21,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
+      visibility: hidden; 
     }
     #localVideo {
       display: block;
@@ -54,7 +53,7 @@
       font-size:10px;
     }
   </style>
-  <title>WebRTC Face Reco Demo Application</title>
+  <title>Recognition Demo App</title>
 </head>
 <body>
 <div id="text">
@@ -62,9 +61,8 @@
   <br>
   <label id=audiolabel style="color:white; font-weight:bold;">Said: </label>
 </div>
-<audio id="localAudio" autoplay muted></audio>
-<video id="localVideo" autoplay muted></video>
-<script src="./facer.js"></script>
+<div id="media">
+</div>
 <canvas width="100" height="100" id="localCanvas"></canvas>
 </body>
 </html>

@@ -4,7 +4,7 @@
   "description": "Image and audio face, emotion, gender detection",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alsenet-labs/mrz-scanner.git"
+    "url": "git@github.com:mirkobrankovic/mirror.git"
   },
   "author": "ja",
   "license": "UNLICENSED",

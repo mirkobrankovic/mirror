@@ -5,7 +5,7 @@ const { combine, timestamp, label, printf } = format;
 // set default log level.
 var logLevel = 'info'
 
-workDir = process.env.WORK_DIR || "/var/www/html/mirror/";
+workDir = process.env.WORK_DIR || "/opt/mirror/";
 
 const newFormat = printf(({ level, message, label, timestamp }) => {
     return `${timestamp} [${label}] ${level}: ${message}`;

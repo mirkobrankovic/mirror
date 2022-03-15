@@ -20,34 +20,6 @@ app.use(function (req, res, next) {
   }
 });
 
-app.post('/emo', function (req, res) {
-  var iPerson = req.query.username ? req.query.username : 'all';
-  var base64Data = req.body.image.toString().replace(/^data:image\/jpeg;base64,/, "");
-  var image = new Buffer(base64Data, 'base64');
-  var result = "";
-
-  fs.mkdtemp(path.join(workDir,'image-'), (err, folder) => {
-    if (err) log.crit(`image folder error: ${err}`);
-
-    fs.writeFile(folder + "/new.jpg", image, 'base64', function (err) {
-      if (err) log.crit(`image file write error: ${err}`);
-    });
-
-    const exec = require('child_process').exec;
-    var command = 'face_recognition ' + workDir + 'known/' + iPerson + ' ' + folder + '/new.jpg --show-distance 1 | cut -d \',\' -f2-3';
-    exec(command, (error, stdout, stderr) => {
-      if (error) log.crit(`face_recognition error: ${error}`);
-      const output = stdout.split(',');
-      log.info(stdout);
-      procenat = Math.abs(90 + ((1 - output[1]) * 10)).toFixed(2);
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(result.concat(output[0], "(", procenat, "%)"));
-
-      deleteFolderRecursive(folder);
-    });
-  });
-});
-
 app.post('/image', function (req, res) {
   var iPerson = req.query.username ? req.query.username : 'all';
   var base64Data = req.body.image.toString().replace(/^data:image\/jpeg;base64,/, "");
@@ -97,7 +69,7 @@ app.post('/audio', function (req, res) {
       }
     });
 
-    var command = 'deepspeech --model ' + workDir + 'deepspeech-0.6.0-models/output_graph.pbmm --lm ' + workDir + 'deepspeech-0.6.0-models/lm.binary --trie ' + workDir + 'deepspeech-0.6.0-models/trie --audio ' + folder + '/new.wav';
+    var command = 'deepspeech --model ' + workDir + 'deepspeech-0.9.3-models.pbmm --scorer ' + workDir + 'deepspeech-0.9.3-models.scorer --audio ' + folder + '/new.wav';
     exec1(command, (error, stdout, stderr) => {
       if (error) {
         log.crit(`deepspeech exec error: ${error}`);
