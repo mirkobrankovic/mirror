@@ -9,12 +9,12 @@
   "author": "ja",
   "license": "UNLICENSED",
   "devDependencies": {
-    "express": "4.17.1",
+    "express": "4.19.2",
     "moment": "2.24.0",
     "winston": "3.2.0"
   },
   "dependencies": {
-    "express": "4.17.1",
+    "express": "4.19.2",
     "moment": "2.24.0",
     "winston": "3.2.0"
   }
